@@ -1,6 +1,11 @@
 import sys
 import math
 
+#Potential expansions listed below
+#Deck focus ----> cardtype threshold recomendations 95% chance to draw in first 5 turns so first 12 cards, mb modified for draw cards.
+#Accept user imput in args rather than manually changing variables
+#Frontend app/ui/interface, simple but useful
+
 
 if __name__ == "__main__" :
     
