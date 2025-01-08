@@ -17,22 +17,21 @@ def hypergeo_calculator(total_desired_cards = int, number_in_hand = int, cards_d
         number_in_hand: The number of a desired card type wanted in hand
         deck_size: The total number of cards in deck
     """
-    success_in_pop = ((math.comb(total_desired_cards, number_in_hand))*(math.comb(deck_size - total_desired_cards, cards_drawn - number_in_hand))) / (math.comb(deck_size, cards_drawn))
-    percentage_chance = str(round(success_in_pop*100, 2)) + "%"
-    return percentage_chance
+    try:
+        success_in_pop = ((math.comb(total_desired_cards, number_in_hand))*(math.comb(deck_size - total_desired_cards, cards_drawn - number_in_hand))) / (math.comb(deck_size, cards_drawn))
+        percentage_chance = round(success_in_pop*100, 2)
+        return percentage_chance
+    except ValueError:
+        print("Your numbers are not compatible!")
+        
 
 if __name__ == "__main__" :
     
-    start = sys.argv[1]
-    """
-    Variables
-    """
-    deck_size = 100
-    total_desired_cards = 14
-    cards_drawn = 7
-    number_in_hand = 2
+    total_desired_cards = int(input("How many cards of the desired type are in your deck: "))
+    number_in_hand = int(input("How many would you like in hand: "))
+    cards_drawn = int(input("How many cards will you draw: "))
+    deck_size = int(input("How many cards are in your deck: "))
 
-    
-
-
+    percentage_chance = hypergeo_calculator(total_desired_cards, number_in_hand, cards_drawn, deck_size)
+    print(f"You will hit this draw {percentage_chance:00.2f}% of the time!")
     
