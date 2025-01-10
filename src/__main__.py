@@ -54,4 +54,5 @@ if __name__ == "__main__" :
     print(f"You will hit this draw {percentage_chance:00.2f}% of the time!")
 
     deck_list, deck_name = grab_deck_list()
+    print(deck_list, deck_name)
     
