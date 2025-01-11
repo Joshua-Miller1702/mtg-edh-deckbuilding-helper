@@ -1,4 +1,21 @@
-#Tasks
+import requests
+import json
+
+#name, cmc, colour identity, type_line, text, legalities, power, toughness
+def random_card_grabber():
+    base_url = "https://api.scryfall.com"
+    random_mod_format = base_url + "/cards/random"
+    random_card = requests.get(random_mod_format).json()
+    keys = ["id", "name", "cmc", "color_identity", "type_line", "oracle_text", "power", "toughness", "legalities"]
+    random_card = [random_card.get(key) for key in keys]
+    return random_card
+
+if __name__ == "__main__":
+    print(random_card_grabber()[-1]['commander'])
+
+
+
+
 
 #grab ~100 cards from the magic api
 
