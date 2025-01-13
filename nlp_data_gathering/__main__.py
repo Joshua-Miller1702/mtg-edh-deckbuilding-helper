@@ -1,27 +1,77 @@
 import requests
 import json
+import csv
 
-#name, cmc, colour identity, type_line, text, legalities, power, toughness
-def random_card_grabber():
+"""
+"id", "name", "cmc", "color_identity", "type_line", "oracle_text", "power", "toughness" - will want to pull all these later for final stuff but not while making the dataset.
+"""
+
+def random_card_grabber(repetitions = 1):
+    """
+    This function grabs some number of random cards from the scryfall database and returns the card's id and oracle text.
+
+    Args:
+        repetitions: The number of random cards to grab from the scryfall database.
+    """
     base_url = "https://api.scryfall.com"
     random_mod_format = base_url + "/cards/random"
     random_card = requests.get(random_mod_format).json()
-    keys = ["id", "name", "cmc", "color_identity", "type_line", "oracle_text", "power", "toughness", "legalities"]
+    keys = ["id", "oracle_text"]
     random_card = [random_card.get(key) for key in keys]
     return random_card
 
-if __name__ == "__main__":
-    print(random_card_grabber()[-1]['commander'])
+"""
+The below code is for manually sorting cards into buckets and writing it to a CSV for training an NLP model.
+"""
+def manual_sorting(card_count = 100):
+    cards_dict = {
+        "id": [],
+        "oracle_text": []
+    }
+
+    card_buckets_dict = {
+        "draw": [], 
+        "protection": [],
+        "removal": [],
+        "stat_enhancer": [],
+        "keyword_granter": [],
+        "burn": [],
+        "discard": [],
+        "recursion": [],
+        "tokens": [],
+        "mill": [],
+        "counterspell": [],
+        "ramp_and_mana_reducers": [],
+        "alternate_win": [],
+        "copy_spell": [],
+        "lifegain": [],
+        "tutor": [],
+        "counters": [],
+        "damage_multiplyers": [],
+        "evasion": [],
+        "stax": [],
+        "lands_matter": [],
+        "graveyard_hate": []
+    }
+
+    for i in range(card_count):
+        card = random_card_grabber()
+        cards_dict["id"].append(card[0])
+        cards_dict["oracle_text"].append(card[1])
+        print(card)
+        validaiton = True
+        while validaiton:
+            bucket = input("Which bucket does this card belong in: ")
+            if bucket == "done":
+                validaiton = False
+                break
+            else:
+                card_buckets_dict[bucket].append(1)
+        for key in card_buckets_dict.keys():
+            if key[i] != 1:
+                card_buckets_dict[key].append(0)
 
 
-
-
-
-#grab ~100 cards from the magic api
-
-#Make card function buckets
-
-#also make buckets for card types
 
 #sort cards into the buckets manually
 
@@ -34,3 +84,8 @@ if __name__ == "__main__":
 #test using test file to see if the model is accurate
 
 #hope to god that the model is pretty good the first time round :)
+
+
+
+if __name__ == "__main__":
+    manual_sorting()
