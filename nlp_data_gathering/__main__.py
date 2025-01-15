@@ -73,13 +73,16 @@ def manual_sorting(output_file, card_count = 100):
         for key in card_buckets_dict.keys():
             card_buckets_dict[key].append(0)
         while validaiton:
-            bucket = input("Which bucket does this card belong in: ")
-            if bucket == "done":
-                validaiton = False
-                break
-            else:
-                card_buckets_dict[bucket] = card_buckets_dict[bucket][:-1]
-                card_buckets_dict[bucket].append(1)
+            try:
+                bucket = input("Which bucket does this card belong in: ")
+                if bucket == "done":
+                    validaiton = False
+                    break
+                else:
+                    card_buckets_dict[bucket] = card_buckets_dict[bucket][:-1]
+                    card_buckets_dict[bucket].append(1)
+            except KeyError:
+                print("Invalid bucket, please try again.")
                     
             
 

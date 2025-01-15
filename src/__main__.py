@@ -10,6 +10,7 @@ import win32clipboard
 #Frontend app/ui/interface, simple but useful
 
 def hypergeo_calculator(total_desired_cards = int, number_in_hand = int, cards_drawn = 7, deck_size = 99):
+    #####!!!!! NEED to add k or more successes not exactly k, not currently working as intended!!!!!#####
     """ 
     This calcuclates the percentage chance that a specific type of card will be drawn from a deck of a given size.
 
@@ -53,6 +54,6 @@ if __name__ == "__main__" :
     percentage_chance = hypergeo_calculator(total_desired_cards, number_in_hand, cards_drawn, deck_size)
     print(f"You will hit this draw {percentage_chance:00.2f}% of the time!")
 
-    deck_list, deck_name = grab_deck_list()
-    print(deck_list, deck_name)
+    """ deck_list, deck_name = grab_deck_list()
+    print(deck_list, deck_name) """
     
