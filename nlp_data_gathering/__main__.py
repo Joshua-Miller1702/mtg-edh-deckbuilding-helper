@@ -31,15 +31,12 @@ def manual_sorting(output_file, card_count = 100):
     }
 
     card_buckets_dict = {
-        "land": [],
-        "creature": [],
-        "artifact": [],
-        "enchantment": [],
-        "planeswalker": [],
-        "battle": [],
-        "instant": [],
-        "sorcery": [],
-        "kindred": [],
+        "flicker": [],
+        "proliferate": [],
+        "extra_combat": [],
+        "extra_turn": [],
+        "cast_outside_hand": [],
+        "poison": [],
         "draw": [], 
         "protection": [],
         "removal": [],
@@ -48,6 +45,7 @@ def manual_sorting(output_file, card_count = 100):
         "burn": [],
         "discard": [],
         "recursion": [],
+        "vehicle": [],
         "tokens": [],
         "mill": [],
         "counterspell": [],
@@ -63,6 +61,11 @@ def manual_sorting(output_file, card_count = 100):
         "lands_matter": [],
         "graveyard_hate": [],
         "creature_steal": [],
+        "sacrifice": [],
+        "untap": [],
+        "land_destruction": [],
+        "cheat": [],
+        "flexible": [],
     }
 
     for i in range(card_count):
