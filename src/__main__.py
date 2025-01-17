@@ -10,7 +10,6 @@ import win32clipboard
 #Frontend app/ui/interface, simple but useful
 
 def hypergeo_calculator(total_desired_cards = int, number_in_hand = int, cards_drawn = 7, deck_size = 99):
-    #####!!!!! NEED to add k or more successes not exactly k, not currently working as intended!!!!!#####
     """ 
     This calcuclates the percentage chance that a specific type of card will be drawn from a deck of a given size.
 
@@ -21,11 +20,21 @@ def hypergeo_calculator(total_desired_cards = int, number_in_hand = int, cards_d
         deck_size: The total number of cards in deck
     """
     try:
-        success_in_pop = ((math.comb(total_desired_cards, number_in_hand))*(math.comb(deck_size - total_desired_cards, cards_drawn - number_in_hand))) / (math.comb(deck_size, cards_drawn))
-        percentage_chance = round(success_in_pop*100, 2)
-        return percentage_chance
+        success_in_pop = []
+        counter = number_in_hand
+        less_than_desired = 0
+        for i in range(number_in_hand + 1):
+            calculation = ((math.comb(total_desired_cards, counter))*(math.comb(deck_size - total_desired_cards, cards_drawn - counter))) / (math.comb(deck_size, cards_drawn))
+            success_in_pop.append(calculation)
+            counter -= 1
+        for i in success_in_pop[1:]:
+            less_than_desired += i
+        percentage_chance_exact = round(success_in_pop[0]*100, 2)
+        percentage_chance_more = round((1 - less_than_desired)*100, 2)
+        return percentage_chance_exact, percentage_chance_more
     except ValueError:
         print("Your numbers are not compatible, please re-enter!")
+
 
 def grab_deck_list():
     """
@@ -51,8 +60,9 @@ if __name__ == "__main__" :
     cards_drawn = int(input("How many cards will you draw: "))
     deck_size = int(input("How many cards are in your deck: "))
 
-    percentage_chance = hypergeo_calculator(total_desired_cards, number_in_hand, cards_drawn, deck_size)
-    print(f"You will hit this draw {percentage_chance:00.2f}% of the time!")
+    percentage_chance_exact, percentage_chance_more = hypergeo_calculator(total_desired_cards, number_in_hand, cards_drawn, deck_size)
+    print(f"You will draw exactly {number_in_hand} cards {percentage_chance_exact:00.2f}% of the time!")
+    print(f"You will draw {number_in_hand} cards or more {percentage_chance_more:00.2f}% of the time!")
 
     """ deck_list, deck_name = grab_deck_list()
     print(deck_list, deck_name) """
