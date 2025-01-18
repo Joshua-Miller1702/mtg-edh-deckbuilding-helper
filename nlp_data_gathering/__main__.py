@@ -16,7 +16,9 @@ def random_card_grabber(repetitions = 1):
     random_card = requests.get(random_mod_format).json()
     keys = ["id", "oracle_text", "name", "cmc", "color_identity", "type_line", "power", "toughness"]
     random_card = [random_card.get(key) for key in keys]
+    
     return random_card
+
 
 def manual_sorting(output_file, card_count = 100):
     """
@@ -113,6 +115,7 @@ def manual_sorting(output_file, card_count = 100):
 
 
 if __name__ == "__main__":
+    #change output path to nlp files
     output_file = argv[1]
     card_count = int(argv[2])
     manual_sorting(output_file, card_count)
