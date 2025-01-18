@@ -107,7 +107,7 @@ def nlp_model(data = pd.DataFrame):
         for k in range(len(vocab)):
             word_counts_dict[i][vocab[k]] += x[j][k]
 
-def laplace_smoothing(n_label_items, vocab, word_counts_dict, word, text_label):
+def laplace_smoothing(n_text_with_label, vocab, word_counts_dict, word, text_label):
     """
     This function compensates for words that are presnt in the test set and not in the training set by returning smoothed condiditonal probabilities.
 
@@ -115,11 +115,11 @@ def laplace_smoothing(n_label_items, vocab, word_counts_dict, word, text_label):
         n_label_items:
         vocab: unique words in dataset
         word_counts_dict: dictionary of unique words and their frequency in dataset
-        word: ??????
-        text_label: ?????
+        word: missing word??????
+        text_label: label assoicated with missing words???????
     """
     a = word_counts_dict[text_label][word] + 1
-    b = n_label_items[text_label] + len(vocab)
+    b = n_text_with_label[text_label] + len(vocab)
     return math.log(a/b)
     
 def grouping_labels(x, y, labels):
@@ -130,6 +130,8 @@ def grouping_labels(x, y, labels):
         x: text (values)
         y: labels (values)
         labels: labels (headers)
+    Returns:
+        data: groups of text by positive associated label
     """ 
     data = {}
     for label in labels:
@@ -145,9 +147,23 @@ def fit(x, y, labels):
         x: text (values)
         y: labels (values)
         labels: labels (headers)
+    Returns:
+        n_text_with_label: number of card texts associated with each label
+        log_label_probs: log of the apriori conditional probablities.
     """
+    n_text_with_label = {}
+    log_label_probs = {}
+    n = len(x)
+    grouped_data = grouping_labels(x, y, labels)
+    for i, data in grouped_data.items():
+        n_text_with_label[i] = len(data)
+        log_label_probs[i] = math.log(n_text_with_label[i] / n)
+    return n_text_with_label, log_label_probs
 
-
+def predict(n_text_with_label, vocab, word_counts_dict, log_label_probs, labels, x):
+    """
+    This function returns the predictions for 
+    """
 
 
 
