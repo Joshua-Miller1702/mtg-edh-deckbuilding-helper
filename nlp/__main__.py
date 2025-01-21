@@ -12,7 +12,8 @@ import nltk
 from sklearn.feature_extraction.text import CountVectorizer
 from collections import defaultdict
 
-def retrieve_card_text(card_ids = []):
+
+def retrieve_card_text(card_ids = []): # this is cleared of issues
     """
     This function retrieves the oracle text from the scryfall API for a list of card ids in the training set.
 
@@ -37,7 +38,7 @@ def retrieve_card_text(card_ids = []):
 
     return cards_text
 
-def preprocess_text(cards_text = list):
+def preprocess_text(cards_text = list):# this is cleared of issues
     """
     This function preprocesses the card text in perpartion for NLP training.
 
@@ -66,7 +67,7 @@ def preprocess_text(cards_text = list):
 
     return processed_text
 
-def final_data_prep(processed_text = list, testing_and_training_set = csv):
+def final_data_prep(processed_text: list = None, testing_and_training_set = csv):
     """ 
     This function prepares the input dataset for NLP training.
 
@@ -80,32 +81,10 @@ def final_data_prep(processed_text = list, testing_and_training_set = csv):
     data.insert(loc = 0, column = "text", value = processed_text)
     data.drop(columns = ["id"], inplace = True)
     text = data["text"].values
-    lables = data.loc[:, data.columns != "text"].values
-    train_text, test_text, train_labels, test_labels = train_test_split(text, lables, test_size=0.4)
+    labels = data.loc[:, data.columns != "text"].values
+    train_text, test_text, train_labels, test_labels = train_test_split(text, labels, test_size=0.4)
 
     return data, train_text, test_text, train_labels, test_labels
-
-
-
-def nlp_model(data = pd.DataFrame):
-    """
-    This function trains an NLP model on the processed card text.
-
-    Args:
-        processed_text: A list of processed card text to train the model on.
-    """
-    data, train_text, test_text, train_labels, test_labels = final_data_prep()
-    vec = CountVectorizer() #Unique words
-    vocab = vec.get_feature_names_out() #get unique words out?
-    x = vec.fit_transform(data) #fits data into model and transforms data to suit the model?
-    x = x.toarray()
-    word_counts_dict = {}
-    for i in range(37): # !!!!! probably not 2 for me xd !!!!!!# but may be change 
-        word_counts_dict[i] = defaultdict(lambda: 0) #dict that dosent throw keyerror, lambda fills it with "key": 0?
-    for j in range(x.shape[0]):
-        i = train_labels[j]
-        for k in range(len(vocab)):
-            word_counts_dict[i][vocab[k]] += x[j][k]
 
 def laplace_smoothing(n_text_with_label, vocab, word_counts_dict, word, text_label):
     """
@@ -115,7 +94,7 @@ def laplace_smoothing(n_text_with_label, vocab, word_counts_dict, word, text_lab
         n_label_items:
         vocab: unique words in dataset
         word_counts_dict: dictionary of unique words and their frequency in dataset
-        word: missing word??????
+        word: missing word
         text_label: label assoicated with missing words???????
     """
     a = word_counts_dict[text_label][word] + 1
@@ -138,7 +117,6 @@ def grouping_labels(x, y, labels):
         data[label] = x[np.where(y == 1)]
     return data    
 
-
 def fit(x, y, labels):
     """
     This function takes x (text values) and y (labels values) and returns the number of cards with each label and its apriori conditional probability.
@@ -149,7 +127,7 @@ def fit(x, y, labels):
         labels: labels (headers)
     Returns:
         n_text_with_label: number of card texts associated with each label
-        log_label_probs: log of the apriori conditional probablities.
+        log_label_probs: log of the apriori conditional probablities
     """
     n_text_with_label = {}
     log_label_probs = {}
@@ -162,20 +140,47 @@ def fit(x, y, labels):
 
 def predict(n_text_with_label, vocab, word_counts_dict, log_label_probs, labels, x):
     """
-    This function returns the predictions for 
+    This function returns the predictions by the nlp model on how fed in card text should be calssified
+
+    Args:
+        n_text_with_label: number of card texts associated with each label
+        vocab: unique words in dataset
+        word_counts_dict: dictionary of unique words and their frequency in dataset
+        log_label_probs: log of the apriori conditional probablities
+        labels: labels (headers)
+        x: text (values)
     """
-
-
-
-
+    tokenizer = nltk.tokenize.WhitespaceTokenizer()
+    result = []
+    for text in x:
+        label_scores = {i: log_label_probs[i] for i in labels}
+        words = set(tokenizer.tokenize(text))
+        for word in words:
+            if word not in vocab: continue
+            for i in labels:
+                log_w_given_i = laplace_smoothing(n_text_with_label, vocab, word_counts_dict, word, 1)
+                label_scores[i] += log_w_given_i
+        result.append(max(label_scores, key=label_scores.get))
+    return result
 
 
 if __name__ == "__main__":
-    processed_text = preprocess_text()
-    data = final_data_prep(processed_text)
-    print(processed_text)
-    "nlp_model(processed_text)"
-    print(data)
-#make nlp
-#pass csv into nlp
-#nlp will grab card info, separtate the text and then then sort into bukcets
+    
+    data, train_text, test_text, train_labels, test_labels = final_data_prep()
+    vec = CountVectorizer(max_features=3000)
+    x = vec.fit_transform(data)
+    vocab = vec.get_feature_names_out()
+    x = x.toarray()
+    word_counts_dict = {}
+    for i in range(len(vocab)):
+        word_counts_dict[i] = defaultdict(lambda: 0) 
+    print(word_counts_dict)
+    for j in range(x.shape[0]):
+        i = train_labels[j]
+        for k in range(len(vocab)):
+            word_counts_dict[i][vocab[k]] += x[j][k] 
+    
+    labels = [0,1]
+    n_text_with_label, log_label_probs = fit(train_text, train_labels, labels)
+    prediction = predict(n_text_with_label, vocab, word_counts_dict, log_label_probs, labels, test_text)
+    print("Accuraccy of prediction for test set: ", accuracy_score(test_labels, prediction))
