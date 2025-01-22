@@ -4,7 +4,7 @@ import csv
 from sys import argv
 
 
-def random_card_grabber(repetitions = 1):
+def random_card_grabber():
     """
     This function grabs some number of random cards from the scryfall database and returns the card's id and oracle text.
 
@@ -20,7 +20,7 @@ def random_card_grabber(repetitions = 1):
     return random_card
 
 
-def manual_sorting(output_file, card_count = 100):
+def manual_sorting(output_file, card_count: int):
     """
     This function allows the user to generate random cards and sort them into buckets then writes it to a CSV.
 

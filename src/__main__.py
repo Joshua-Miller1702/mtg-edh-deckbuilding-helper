@@ -9,7 +9,7 @@ import win32clipboard
 #Accept user imput in args rather than manually changing variables
 #Frontend app/ui/interface, simple but useful
 
-def hypergeo_calculator(total_desired_cards = int, number_in_hand = int, cards_drawn = 7, deck_size = 99):
+def hypergeo_calculator(total_desired_cards: int, number_in_hand: int, cards_drawn = 7, deck_size = 99):
     """ 
     This calcuclates the percentage chance that a specific type of card will be drawn from a deck of a given size.
 
