@@ -29,13 +29,13 @@ def manual_sorting(output_file, card_count: int):
         card_count: The number of cards to generate and sort.
     """
     cards_dict = {
-        "id": [],
+        "oracle_id": [],
     }
 
     card_buckets_dict = {
         "flicker": [],
         "proliferate": [],
-        "extra_combat": [],
+        "extra_step/combat": [],
         "extra_turn": [],
         "cast_outside_hand": [],
         "poison": [],
