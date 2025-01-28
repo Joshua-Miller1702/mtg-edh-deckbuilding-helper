@@ -25,7 +25,7 @@ def retrieve_card_text_train(card_ids: list = None):
     base_url = "https://api.scryfall.com/cards/"
     card_ids = card_ids if card_ids else []
 
-    with open("nlp/train_test.csv", "r", newline="") as csv_file:
+    with open("data/train_validate.csv", "r", newline="") as csv_file:
         reader = csv.reader(csv_file, delimiter = ",")
         for row in reader:
             card_ids.append(row[0])
@@ -33,7 +33,6 @@ def retrieve_card_text_train(card_ids: list = None):
     cards_text = []
     with open("data/cards.json", 'r', encoding='utf-8') as cards:
         cards_data = json.load(cards)
-        
         for card_id in card_ids:
             card_data = None
             for card in cards_data:
@@ -135,7 +134,7 @@ class Logistic_regression_model(torch.nn.Module):
 
 if __name__ == "__main__":
     #get data
-    data, train_text, test_text, train_labels, test_labels = final_data_prep(train_test = "data/train_test.csv")
+    data, train_text, test_text, train_labels, test_labels = final_data_prep(train_test = "data/train_validate.csv")
     
     tens_train_text, tens_test_text, train_dataset, test_dataset = get_vocab(train_text, test_text, train_labels, test_labels)
     num_classes = train_labels.shape[1]

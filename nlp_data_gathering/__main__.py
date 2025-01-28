@@ -2,25 +2,33 @@ import requests
 import json
 import csv
 from sys import argv
+import random
+import pandas as pd
 
 
-def random_card_grabber():
+def random_card_grabber(card_count):
     """
-    This function grabs some number of random cards from the scryfall database and returns the card's id and oracle text.
+    This function grabs some number of random cards from the scryfall database / from local data and returns the card's oracle id, oracle text, name, cmc and type line.
 
     Args:
-        repetitions: The number of random cards to grab from the scryfall database.
+        repetitions: The number of random cards to grab.
     """
-    base_url = "https://api.scryfall.com"
-    random_mod_format = base_url + "/cards/random"
-    random_card = requests.get(random_mod_format).json()
-    keys = ["id", "oracle_text", "name", "cmc", "color_identity", "type_line", "power", "toughness"]
-    random_card = [random_card.get(key) for key in keys]
-    
-    return random_card
+    #base_url = "https://api.scryfall.com"
+    #random_mod_format = base_url + "/cards/random"
+    #random_card = requests.get(random_mod_format).json()
+    random_cards = []
+    keys = ["oracle_id", "oracle_text", "name", "cmc", "type_line", "card_face"]
+    with open("data/cards.json", 'r', encoding='utf-8') as cards:
+        cards = json.load(cards)
+        for card in range(card_count):
+            random_card = random.choice(cards)
+            values = [random_card.get(key) for key in keys]
+            random_cards.append(values)
+
+    return random_cards
 
 
-def manual_sorting(output_file, card_count: int):
+def manual_sorting(output_file, card_count):
     """
     This function allows the user to generate random cards and sort them into buckets then writes it to a CSV.
 
@@ -30,6 +38,7 @@ def manual_sorting(output_file, card_count: int):
     """
     cards_dict = {
         "oracle_id": [],
+        "oracle_text": []
     }
 
     card_buckets_dict = {
@@ -68,20 +77,30 @@ def manual_sorting(output_file, card_count: int):
         "land_destruction": [],
         "cheat": [],
         "flexible": [],
+        "goad": [],
+        "jank": [],
+
     }
 
-    for i in range(card_count):
-        card = random_card_grabber()
-        cards_dict["id"].append(card[0])
-        print(card)
-        validaiton = True
+    random_cards = random_card_grabber(card_count)
+    card_count = card_count
+    for card in random_cards:
+        if card[1] == None:
+            card_count -= 1
+            continue
+        card[1] = card[1].replace(",","")
+        card[1] = card[1].replace("\n"," ")
+        cards_dict["oracle_id"].append(card[0])
+        cards_dict["oracle_text"].append(card[1])
+        print(card.encode(encoding = "utf-8"))
+        validation = True
         for key in card_buckets_dict.keys():
             card_buckets_dict[key].append(0)
-        while validaiton:
+        while validation:
             try:
                 bucket = input("Which bucket does this card belong in: ")
                 if bucket == "done":
-                    validaiton = False
+                    validation = False
                     break
                 else:
                     card_buckets_dict[bucket] = card_buckets_dict[bucket][:-1]
@@ -98,24 +117,15 @@ def manual_sorting(output_file, card_count: int):
         writer = csv.writer(csv_file, delimiter=",")
         writer.writerow(combined_dict.keys())
         for i in range(card_count):
-            writer.writerow(combined_dict[key][i] for key in keys)
+            writer.writerow(combined_dict[key][i] for key in keys) # MB resolved on line 95? UnicodeEncodeError: 'charmap' codec can't encode character '\u2212' in position 120: character maps to <undefined> - occasionally throws this error
             
     return output_file
 
-#make a csv file with the card names and the buckets of half the cards ~50% cards
-#make a second file for validation with ~5% of cards
-#Make a test file with 45% of cards to test the model
-
-#implement some kind of nlp model (naieve bayesian) to autosort the cards into the buckets
-
-#test using test file to see if the model is accurate
-
-#hope to god that the model is pretty good the first time round :)
-
+#make a csv file with the card names and the buckets for training and validation of model.
+#make a second file for testing with 20% of cards in train_validate file
 
 
 if __name__ == "__main__":
-    #change output path to nlp files
     output_file = argv[1]
-    card_count = int(argv[2])
+    card_count = int(argv[2]) 
     manual_sorting(output_file, card_count)
