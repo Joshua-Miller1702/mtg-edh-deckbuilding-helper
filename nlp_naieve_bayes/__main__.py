@@ -54,6 +54,7 @@ def complete_dataset(processed_text: list = None): #Works
     data = pd.read_csv("data/train_validate.csv")
     data.drop(columns = "oracle_id", inplace = True)
     data.drop(columns = "oracle_text", inplace = True)
+    data.drop(columns= "waste", inplace = True)
     data.insert(loc = 0, column = "processed_text", value = processed_text)
 
     return data
@@ -95,7 +96,7 @@ def data_prep(data: csv = None): #May need to change this to split up label valu
 
 
 class NaieveBayes:
-    
+
     def get_prior_mean_var(self, X):
         #Prior = count how often class label occours
         #P(xi|y) = gausian model, need mean and var
@@ -140,6 +141,7 @@ class NaieveBayes:
                     arrays.append(X[j][0])
             self._vars.append(np.var(arrays.flatten()))
 
+
     def pdf(self, class_i, x):
 
         mean = self._means[class_i]
@@ -148,11 +150,14 @@ class NaieveBayes:
         denominator = np.sqrt(2 * np.pi * var)
         return (numerator/denominator)
 
-        
+
+    def predict(self, X):
+        class_pred = [self._predict(x) for x in X]
+        return class_pred
+
 
     def _predict(self, x):
         #calculate posteriors for each class
-        n_samples = len(X)
         n_classes = len(X[0][1])
 
         posteriors = []
@@ -160,27 +165,21 @@ class NaieveBayes:
         for i in range(n_classes):
             prior = np.log(self._priors[i])
             posterior = np.sum(np.log(self._pdf(i, x)))
-
-
-    def predict(self, X):
-
-
-
-
-
-    
-
-
-
+            posterior = posterior + prior
+            posteriors.append(posterior)
         
+        x_classes = np.zeros(n_classes)
+        threshold = 0.7
+        
+        #return classes with posteriors above a threshold
+        for i, posterior in enumerate(posteriors):
+            if posterior[i] > threshold:
+                x_classes[i] = 1
 
-
-    
+        return x_classes.nonzero()
 
 
 
 if __name__ == "__main__":
-    X,v = data_prep()
-    0 == 0
 
 

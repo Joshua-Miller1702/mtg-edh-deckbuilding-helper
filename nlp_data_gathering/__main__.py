@@ -60,7 +60,8 @@ def manual_sorting(output_file, card_count):
         "tokens": [],
         "mill": [],
         "counterspell": [],
-        "ramp_and_mana_reducers": [],
+        "ramp": [],
+        "mana_reducers": [],
         "alternate_win": [],
         "copy_spell": [],
         "lifegain": [],
@@ -81,7 +82,11 @@ def manual_sorting(output_file, card_count):
         "jank": [],
         "mdfc": [],
         "cycling": [],
-
+        "tap": [],
+        "face_down": [],
+        "graveyard_matters": [],
+        "modal": [],
+        "waste": [],
     }
 
     random_cards = random_card_grabber(card_count)
@@ -94,7 +99,7 @@ def manual_sorting(output_file, card_count):
         card[1] = card[1].replace("\n"," ")
         cards_dict["oracle_id"].append(card[0])
         cards_dict["oracle_text"].append(card[1])
-        print(card.encode(encoding = "utf-8"))
+        print(card)
         validation = True
         for key in card_buckets_dict.keys():
             card_buckets_dict[key].append(0)
@@ -115,7 +120,7 @@ def manual_sorting(output_file, card_count):
     combined_dict = cards_dict | card_buckets_dict
     keys = combined_dict.keys()
 
-    with open(output_file, "w", newline="") as csv_file:
+    with open(output_file, "w", newline="", encoding = "utf-8") as csv_file:
         writer = csv.writer(csv_file, delimiter=",")
         writer.writerow(combined_dict.keys())
         for i in range(card_count):
