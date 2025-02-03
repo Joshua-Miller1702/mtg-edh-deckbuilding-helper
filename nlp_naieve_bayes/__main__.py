@@ -67,7 +67,9 @@ def data_prep(data: csv = None): #May need to change this to split up label valu
     Args: 
         data - text and lables to pass in as a .csv file.
     Returns: 
-        labels: 
+        labels - list of label column headers
+        X_train_dataset - dataset containing vectorised words to train the model on.
+        X_validate_dataset - dataset containing vectorised words to validate the model on.
     """
     data = data if data else complete_dataset()
 
@@ -82,18 +84,103 @@ def data_prep(data: csv = None): #May need to change this to split up label valu
 
     vectorizer = CountVectorizer()
     X_train_fit = vectorizer.fit_transform(X_train)
-    X_validate_fit = vectorizer.transform(X_validate)
+    X_validate_fit = vectorizer.transform(X_validate) #fit to vectorizer not model?
 
     X_train_tens = torch.from_numpy(X_train_fit.todense())
     X_validate_tens = torch.from_numpy(X_validate_fit.todense())
-    X_train_dataset = TensorDataset(X_train_tens, Y_train)
-    X_validate_dataset = TensorDataset(X_validate_tens, Y_validate)
+    train_dataset = TensorDataset(X_train_tens, Y_train)
+    validate_dataset = TensorDataset(X_validate_tens, Y_validate)
 
-    return labels, X_train_dataset, X_validate_dataset
+    return train_dataset, validate_dataset
+
+
+class NaieveBayes:
+    
+    def get_prior_mean_var(self, X):
+        #Prior = count how often class label occours
+        #P(xi|y) = gausian model, need mean and var
+        n_samples = len(X)
+        n_classes = len(X[0][1])
+        #======================================================= get prior =================================================================#
+        #Calculate for each class not each sample
+        class_frequency = np.zeros(n_classes, dtype=float)
+        for i in range(n_classes):
+            count = 0.0
+            for j in range(n_samples):
+                count += (X[j][1][i])
+                if count > 0:
+                    class_frequency[i] = count
+
+        self._priors = []
+        for i in class_frequency:
+            if i > 0:
+                self._priors.append(i / n_samples)
+            else:
+                self._priors.append(0.0)
+
+        #====================================================== get mean ===================================================================#
+        #mean of all features in given class
+        self._means = []
+        for i in range(n_classes):
+            total = 0.0
+            count = 0.0
+            for j in range(n_samples):
+                if X[0][1][i] == 1:
+                    count += 1
+                    total += sum(X[j][0])
+            self._means.append(total / count * n_samples)    
+
+        #====================================================== get var =====================================================================#
+        #variance of all features in a given class
+        self._vars = []
+        for i in range(n_classes):
+            arrays = []
+            for j in range(n_samples):
+                if X[0][1][i] == 1:
+                    arrays.append(X[j][0])
+            self._vars.append(np.var(arrays.flatten()))
+
+    def pdf(self, class_i, x):
+
+        mean = self._means[class_i]
+        var = self._var[class_i]
+        numerator = np.exp(-((x - mean) ** 2) / (2 * var))
+        denominator = np.sqrt(2 * np.pi * var)
+        return (numerator/denominator)
+
+        
+
+    def _predict(self, x):
+        #calculate posteriors for each class
+        n_samples = len(X)
+        n_classes = len(X[0][1])
+
+        posteriors = []
+        
+        for i in range(n_classes):
+            prior = np.log(self._priors[i])
+            posterior = np.sum(np.log(self._pdf(i, x)))
+
+
+    def predict(self, X):
+
+
+
+
+
     
 
+
+
+        
+
+
+    
+
+
+
 if __name__ == "__main__":
-    y,x,z = data_prep()
-    print(y,x,z)
-    x = 1
+    X,v = data_prep()
+    0 == 0
+
 

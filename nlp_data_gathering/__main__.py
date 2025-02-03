@@ -79,6 +79,8 @@ def manual_sorting(output_file, card_count):
         "flexible": [],
         "goad": [],
         "jank": [],
+        "mdfc": [],
+        "cycling": [],
 
     }
 
