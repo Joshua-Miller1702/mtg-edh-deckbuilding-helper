@@ -54,7 +54,8 @@ def complete_dataset(processed_text: list = None): #Works
     data = pd.read_csv("data/train_validate.csv")
     data.drop(columns = "oracle_id", inplace = True)
     data.drop(columns = "oracle_text", inplace = True)
-    data.drop(columns= "waste", inplace = True)
+    data.drop(data.loc[data["waste"] == 1].index, inplace = True)
+    data.drop(columns = "waste", inplace = True)
     data.insert(loc = 0, column = "processed_text", value = processed_text)
 
     return data
@@ -156,7 +157,7 @@ class NaieveBayes:
         return class_pred
 
 
-    def _predict(self, x):
+    def _predict(self, X, x):
         #calculate posteriors for each class
         n_classes = len(X[0][1])
 
@@ -181,5 +182,5 @@ class NaieveBayes:
 
 
 if __name__ == "__main__":
-
+    z = 1
 

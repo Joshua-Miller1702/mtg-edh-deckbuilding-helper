@@ -87,6 +87,9 @@ def manual_sorting(output_file, card_count):
         "graveyard_matters": [],
         "modal": [],
         "waste": [],
+        "library_filter": [],
+        "self_buff": [],
+        "has_keyword": []
     }
 
     random_cards = random_card_grabber(card_count)
