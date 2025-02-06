@@ -6,14 +6,17 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import CountVectorizer
 import nltk.corpus
+import itertools
 import csv
 from torch.utils.data import TensorDataset, DataLoader 
+from sklearn.naive_bayes import MultinomialNB
 
 def retrieve_card_text(): #Works
     """
     This function retrieves the oracle text from the training set to convert to a list for preprocessing.
     """
     df = pd.read_csv("data/train_validate.csv")
+    df.drop(df.loc[df["waste"] == 1].index, inplace = True)
     cards_text = df["oracle_text"].values
 
     return cards_text
@@ -28,10 +31,10 @@ def preprocess_text(cards_text: list = None): #Works
     cards_text = cards_text if cards_text else retrieve_card_text()
 
     for i in range(len(cards_text)):
-        cards_text[i] = re.sub(r'\d+', '', cards_text[i])
-        cards_text[i] = re.sub(r'[^\w\s]', '', cards_text[i])
-        cards_text[i] = re.sub(r'\n', ' ', cards_text[i])
-        cards_text[i] = cards_text[i].lower()
+        cards_text[i] = re.sub(r'\d+', '', str(cards_text[i]))
+        cards_text[i] = re.sub(r'[^\w\s]', '', str(cards_text[i]))
+        cards_text[i] = re.sub(r'\n', ' ', str(cards_text[i]))
+        cards_text[i] = str(cards_text[i]).lower()
 
     stopwords = set(nltk.corpus.stopwords.words('english'))
     tokenizer = nltk.tokenize.WhitespaceTokenizer()
@@ -56,6 +59,8 @@ def complete_dataset(processed_text: list = None): #Works
     data.drop(columns = "oracle_text", inplace = True)
     data.drop(data.loc[data["waste"] == 1].index, inplace = True)
     data.drop(columns = "waste", inplace = True)
+    data.drop(columns = "mdfc", inplace = True)
+    data.drop(columns = "poison", inplace = True)
     data.insert(loc = 0, column = "processed_text", value = processed_text)
 
     return data
@@ -95,6 +100,33 @@ def data_prep(data: csv = None): #May need to change this to split up label valu
 
     return train_dataset, validate_dataset
 
+def data_prep_alt(data: csv = None):
+    """ 
+    This function prepares the input dataset for NLP training.
+
+    Args: 
+        data - text and lables to pass in as a .csv file.
+    Returns: 
+        labels - list of label column headers
+        X_train_dataset - dataset containing vectorised words to train the model on.
+        X_validate_dataset - dataset containing vectorised words to validate the model on.
+    """
+    data = data if data else complete_dataset()
+
+    data = pd.DataFrame(data)
+
+    label_values = (data.loc[:, data.columns != "processed_text"].values)
+    text_data = data["processed_text"].values
+    labels = data.columns
+    labels = labels[1:]
+
+    X_train, X_validate, Y_train, Y_validate = train_test_split(text_data, label_values, test_size = 0.25, random_state = 17)
+
+    vectorizer = CountVectorizer()
+    X_train_fit = vectorizer.fit_transform(X_train)
+    X_validate_fit = vectorizer.transform(X_validate) #fit to vectorizer not model?
+
+    return X_train_fit, Y_train, X_validate_fit, Y_validate
 
 class NaieveBayes:
 
@@ -121,7 +153,7 @@ class NaieveBayes:
                 self._priors.append(0.0)
 
         #====================================================== get mean ===================================================================#
-        #mean of all features in given class
+        #mean of all features in given class 
         self._means = []
         for i in range(n_classes):
             total = 0.0
@@ -130,7 +162,10 @@ class NaieveBayes:
                 if X[0][1][i] == 1:
                     count += 1
                     total += sum(X[j][0])
-            self._means.append(total / count * n_samples)    
+            try:
+                self._means.append(total / count * n_samples)
+            except ZeroDivisionError:
+                self._means.append(0)    
 
         #====================================================== get var =====================================================================#
         #variance of all features in a given class
@@ -140,20 +175,21 @@ class NaieveBayes:
             for j in range(n_samples):
                 if X[0][1][i] == 1:
                     arrays.append(X[j][0])
-            self._vars.append(np.var(arrays.flatten()))
+            arrays = list(itertools.chain(*arrays))
+            self._vars.append(np.var(arrays))
 
 
-    def pdf(self, class_i, x):
+    def _pdf(self, class_i, x):
 
         mean = self._means[class_i]
-        var = self._var[class_i]
+        var = self._vars[class_i]
         numerator = np.exp(-((x - mean) ** 2) / (2 * var))
         denominator = np.sqrt(2 * np.pi * var)
         return (numerator/denominator)
 
 
     def predict(self, X):
-        class_pred = [self._predict(x) for x in X]
+        class_pred = [self._predict(X, x) for x in X]
         return class_pred
 
 
@@ -182,5 +218,20 @@ class NaieveBayes:
 
 
 if __name__ == "__main__":
-    z = 1
+   """ X, Val = data_prep()
 
+    def accuracy(lab_true, lab_pred):
+        accuracy = np.sum(lab_true == lab_pred) / len(lab_true)
+        return accuracy
+    
+    nb = NaieveBayes()
+    nb.get_prior_mean_var(X)
+    predictions = nb.predict(Val)
+    
+    print(f"Accuracy: {accuracy(Val, predictions)}")"""
+   
+   X, Valx, Y, Valy = data_prep_alt()
+   
+   model = MultinomialNB()
+   model.fit(X, Y)
+   print(model.predict(Valx))

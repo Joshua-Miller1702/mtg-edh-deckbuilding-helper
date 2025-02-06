@@ -47,7 +47,7 @@ def manual_sorting(output_file, card_count):
         "extra_step/combat": [],
         "extra_turn": [],
         "cast_outside_hand": [],
-        "poison": [],
+        "poison": [], #not needed
         "draw": [], 
         "protection": [],
         "removal": [],
@@ -56,7 +56,7 @@ def manual_sorting(output_file, card_count):
         "burn": [],
         "discard": [],
         "recursion": [],
-        "vehicle": [],
+        "vehicle": [], #not needed
         "tokens": [],
         "mill": [],
         "counterspell": [],
@@ -67,7 +67,7 @@ def manual_sorting(output_file, card_count):
         "lifegain": [],
         "tutor": [],
         "counters": [],
-        "damage_multiplyers": [],
+        "damage_multiplyers": [], #not needed
         "evasion": [],
         "stax": [],
         "lands_matter": [],
@@ -78,9 +78,9 @@ def manual_sorting(output_file, card_count):
         "land_destruction": [],
         "cheat": [],
         "flexible": [],
-        "goad": [],
+        "goad": [], 
         "jank": [],
-        "mdfc": [],
+        "mdfc": [], #not needed
         "cycling": [],
         "tap": [],
         "face_down": [],
