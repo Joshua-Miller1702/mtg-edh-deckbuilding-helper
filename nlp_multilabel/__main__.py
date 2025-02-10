@@ -5,16 +5,22 @@ import torch
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.feature_extraction.text import CountVectorizer
 import nltk.corpus
 import csv
 import matplotlib.pyplot as plt
 from torch.utils.data import TensorDataset, DataLoader
 from sklearn.naive_bayes import MultinomialNB
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, confusion_matrix
 from sklearn.multiclass import OneVsRestClassifier
 from sklearn.svm import LinearSVC
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
+from sklearn.metrics import precision_score
+from sklearn.metrics import recall_score
+from sklearn.metrics import roc_auc_score
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import f1_score
 
 
 def retrieve_card_text(): #Works
@@ -105,11 +111,9 @@ def data_prep_alt(data: csv = None):
     labels = data.columns
     labels = labels[1:]
 
-    train, validate = train_test_split(data, test_size = 0.25, random_state = 17)
-    X_train = train.processed_text
-    X_validate = validate.processed_text
+    X_train, X_val, Y_train, Y_val = train_test_split(text_data, label_values, test_size=0.25, random_state=17)
 
-    return X_train, X_validate, labels, train, validate
+    return X_train, X_val, labels, Y_train, Y_val
 
 def look_at_data():
     """
@@ -121,18 +125,56 @@ def look_at_data():
     plt.tight_layout()
     plt.show()
 
-def pipelines(X_train, X_val, labels, meta_train, meta_validate):
-    NB_pipeline = Pipeline([
+def classifier(X_train, X_val, labels, Y_train, Y_val):
+
+    vectoriser = CountVectorizer()
+    X_train = vectoriser.fit_transform(X_train, Y_train)
+    X_val = vectoriser.transform(X_val)
+
+    model = OneVsRestClassifier(MultinomialNB())
+
+    model.fit(X_train, Y_train)
+    y_predicted = model.predict(X_val)
+
+    conf_mat = confusion_matrix(Y_val.argmax(axis=1), y_predicted.argmax(axis=1))
+    precision = precision_score(Y_val, y_predicted, average = None)
+    recall = recall_score(Y_val, y_predicted, average = None)
+    f1 = f1_score(Y_val, y_predicted, average = None)
+
+    print(conf_mat)
+    print(precision)
+    print(recall)
+    print(f1)
+
+    glob_prec = sum(precision) / len(precision)
+    glob_rec = sum(recall) / len(recall)
+    mac_f1 = 2 *((glob_rec * glob_prec)/(glob_prec + glob_rec))
+
+    print(glob_prec)
+    print(glob_rec)
+    print(mac_f1)
+    
+
+
+
+
+    """NB_pipeline = Pipeline([
                     ("tfidf", TfidfVectorizer()),
                     ("classifier", OneVsRestClassifier(MultinomialNB(fit_prior = True, class_prior = None)))
+                    
                     ])
 
     for label in labels:
         NB_pipeline.fit(X_train, meta_train[label])
         prediction = NB_pipeline.predict(X_val)
-        print(f"Accuracy for {label} is: {accuracy_score(meta_validate[label], prediction)}")
+        #print(f"Accuracy for {label} is: {accuracy_score(meta_validate[label], prediction)}") #Dataset unablanced so this is kinda useless but cool nonetheless
+        print(f"Precision score: {precision_score(meta_validate[label], prediction)}")
+        print(f"Recall score: {recall_score(meta_validate[label], prediction, average = None, zero_division = np.nan)}")"""
 
+    
+    x = 222
 
 if __name__ == "__main__":
-    X_train, X_val, labels, meta_train, meta_validate = data_prep_alt()
-    pipelines(X_train, X_val, labels, meta_train, meta_validate)
+    X_train, X_val, labels, Y_train, Y_val = data_prep_alt()
+    classifier(X_train, X_val, labels, Y_train, Y_val)
+    x = 8
