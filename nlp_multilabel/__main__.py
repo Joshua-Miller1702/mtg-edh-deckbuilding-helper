@@ -4,25 +4,25 @@ import re
 import torch
 import numpy as np
 from sklearn.model_selection import train_test_split
-from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer
 import nltk.corpus
 import csv
+import matplotlib.pyplot as plt
 from torch.utils.data import TensorDataset, DataLoader
-from skmultilearn.problem_transform import BinaryRelevance
-from skmultilearn.problem_transform import ClassifierChain
-from skmultilearn.problem_transform import LabelPowerset
-from skmultilearn.adapt import MLkNN
-from sklearn.naive_bayes import GaussianNB
+from sklearn.naive_bayes import MultinomialNB
 from sklearn.metrics import accuracy_score
-
-
-
-
+from sklearn.multiclass import OneVsRestClassifier
+from sklearn.svm import LinearSVC
+from sklearn.linear_model import LogisticRegression
+from sklearn.pipeline import Pipeline
 
 
 def retrieve_card_text(): #Works
     """
     This function retrieves the oracle text from the training set to convert to a list for preprocessing.
+    
+    Returns: 
+        cards_text - oracle text of cards
     """
     df = pd.read_csv("data/train_validate.csv")
     df.drop(df.loc[df["waste"] == 1].index, inplace = True)
@@ -35,7 +35,9 @@ def preprocess_text(cards_text: list = None): #Works
     This function preprocesses the card text in perpartion for NLP training.
 
     Args:
-        cards_text: A list of cards text to process.
+        cards_text - A list of cards text to process.
+    Returns:
+        processed_text - preprocessed text to pass to be added to dataframe to act as feature vectors for the model.
     """
     cards_text = cards_text if cards_text else retrieve_card_text()
 
@@ -61,6 +63,11 @@ def preprocess_text(cards_text: list = None): #Works
 def complete_dataset(processed_text: list = None): #Works
     """
     This function combines the processed text with the csv data containing the labels.
+    
+    Args:
+        processed_text - oracle text that has been preprocessed for addition to dataframe.
+    Returns:
+        data - dataframe containting all data needed to train nlp model.
     """
     processed_text = processed_text if processed_text else preprocess_text()
     data = pd.read_csv("data/train_validate.csv")
@@ -83,9 +90,11 @@ def data_prep_alt(data: csv = None):
     Args: 
         data - text and lables to pass in as a .csv file.
     Returns: 
+        X_train - preprocessed text for train set
+        X_validate - preprocessed text for validation set
         labels - list of label column headers
-        X_train_dataset - dataset containing vectorised words to train the model on.
-        X_validate_dataset - dataset containing vectorised words to validate the model on.
+        train - train portion of entire dataset
+        validate - validate portion of entire dataset 
     """
     data = data if data else complete_dataset()
 
@@ -96,18 +105,34 @@ def data_prep_alt(data: csv = None):
     labels = data.columns
     labels = labels[1:]
 
-    X_train, X_validate, Y_train, Y_validate = train_test_split(text_data, label_values, test_size = 0.25, random_state = 17)
+    train, validate = train_test_split(data, test_size = 0.25, random_state = 17)
+    X_train = train.processed_text
+    X_validate = validate.processed_text
 
-    vectorizer = CountVectorizer()
-    X_train_fit = vectorizer.fit_transform(X_train)
-    X_validate_fit = vectorizer.transform(X_validate) #fit to vectorizer not model?
+    return X_train, X_validate, labels, train, validate
 
-    return X_train_fit, Y_train, X_validate_fit, Y_validate
+def look_at_data():
+    """
+    This function creates a plot of the dataset used to train the model.
+    """
+    data = complete_dataset()
+    data = pd.DataFrame(data)
+    data.plot(subplots=True)
+    plt.tight_layout()
+    plt.show()
+
+def pipelines(X_train, X_val, labels, meta_train, meta_validate):
+    NB_pipeline = Pipeline([
+                    ("tfidf", TfidfVectorizer()),
+                    ("classifier", OneVsRestClassifier(MultinomialNB(fit_prior = True, class_prior = None)))
+                    ])
+
+    for label in labels:
+        NB_pipeline.fit(X_train, meta_train[label])
+        prediction = NB_pipeline.predict(X_val)
+        print(f"Accuracy for {label} is: {accuracy_score(meta_validate[label], prediction)}")
+
 
 if __name__ == "__main__":
-    X, Y, X_val, Y_val = data_prep_alt()
-    model = LabelPowerset(GaussianNB())
-    model.fit(X, Y)
-    predictions = model.predict(X_val)
-    print(accuracy_score(Y_val,predictions))    
-    
+    X_train, X_val, labels, meta_train, meta_validate = data_prep_alt()
+    pipelines(X_train, X_val, labels, meta_train, meta_validate)
