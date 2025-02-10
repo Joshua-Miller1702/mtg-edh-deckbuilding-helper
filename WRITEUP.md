@@ -30,6 +30,7 @@ Expected result:
 - Identified issues with multinomial logisitic regression and the dataset causing it to be a much more difficult model to implement than intended.
 - Decided to shift to using a naieve bayes classifier instead, with option of circling back to the logistic regression model for fun.
 - Re-organised folders to make more sense.
+- Locally downloaded card dataset to stop hammering the scryfall api.
 
 4th Week:
 - Reevaluated approach, identified a knowladge gap in the nomanclature leading me down a rabbit hole making incorrect models (of which i made 2), not entirely a waste of time as they greatly benefited the learning process and in terms of how both models work and how my data is speicifically structured.
