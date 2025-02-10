@@ -1,7 +1,9 @@
 Initial idea: 
 - Hypergeometric calculator to be applied to groups of cards classified by an NLP ~~with a GUI for deck importing and odd checking~~.
+
 Why: 
 - I am manually classifying cards each time i build a new deck (one per week) which takes ~ 1 - 2h to do each time so this project allows me to do 2 things; 1. Refine and build decks much faster, 2. learn how to make machine learning models.
+
 Expected result: 
 - A funcitonal NLP model that has a decently high accuracy 90+% that can do the majority of deck labelling for me after which i can tweak manually or refine the model to make it more effective. 
 
