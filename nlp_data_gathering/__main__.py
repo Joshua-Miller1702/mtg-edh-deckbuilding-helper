@@ -3,15 +3,16 @@ import json
 import csv
 from sys import argv
 import random
+import re
 import pandas as pd
-
+from src.__main__ import grab_deck_list
 
 def random_card_grabber(card_count):
     """
     This function grabs some number of random cards from the scryfall database / from local data and returns the card's oracle id, oracle text, name, cmc and type line.
 
     Args:
-        repetitions: The number of random cards to grab.
+        repetitions - The number of random cards to grab.
     """
     #base_url = "https://api.scryfall.com"
     #random_mod_format = base_url + "/cards/random"
@@ -27,8 +28,7 @@ def random_card_grabber(card_count):
 
     return random_cards
 
-
-def manual_sorting(output_file, card_count):
+def manual_sorting(output_file, deck_list, card_count = None):
     """
     This function allows the user to generate random cards and sort them into buckets then writes it to a CSV.
 
@@ -91,9 +91,13 @@ def manual_sorting(output_file, card_count):
         "self_buff": [],
         "has_keyword": []
     }
+    if deck_list:
+        random_cards = deck_list
+        card_count = len(deck_list)
+    else:
+        random_cards = random_card_grabber(card_count)
+        card_count = card_count
 
-    random_cards = random_card_grabber(card_count)
-    card_count = card_count
     for card in random_cards:
         if card[1] == None:
             card_count -= 1
@@ -118,8 +122,6 @@ def manual_sorting(output_file, card_count):
             except KeyError:
                 print("Invalid bucket, please try again.")
                     
-            
-
     combined_dict = cards_dict | card_buckets_dict
     keys = combined_dict.keys()
 
@@ -131,11 +133,34 @@ def manual_sorting(output_file, card_count):
             
     return output_file
 
-#make a csv file with the card names and the buckets for training and validation of model.
-#make a second file for testing with 20% of cards in train_validate file
+def manual_supplimentation(output_file):
+    """
+    This function allows for manual supplimentation of cards to even out underepresented parts of the dataset. Invokes manual_sorting to label a decklist.
 
+    Args:
+        output_file - output_file name (.csv)
+        deck_list - not an arg passed in but this function will grab a decklist (or anything) from your clipboard, only in MTGA format.
+    """
+    deck_list, deck_name = grab_deck_list()
+    for i in range(len(deck_list)):
+        deck_list[i] = re.sub(r'\d', '', deck_list[i])
+        deck_list[i] = deck_list[i].lstrip()
+
+    rdy_to_sort = []
+    keys = ["oracle_id", "oracle_text", "name", "cmc", "type_line", "card_face"]
+    with open("data/cards.json", 'r', encoding='utf-8') as cards:
+        cards = json.load(cards)
+        for name in deck_list:
+            for card in cards:
+                if card["name"] == name:
+                    values = [card.get(key) for key in keys]
+                    rdy_to_sort.append(values)
+
+    manual_sorting(output_file, deck_list = rdy_to_sort)
 
 if __name__ == "__main__":
     output_file = argv[1]
-    card_count = int(argv[2]) 
-    manual_sorting(output_file, card_count)
+    """card_count = int(argv[2]) 
+    manual_sorting(output_file, card_count)"""
+    manual_supplimentation(output_file)
+    

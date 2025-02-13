@@ -83,6 +83,7 @@ def complete_dataset(processed_text: list = None): #Works
     data.drop(columns = "waste", inplace = True)
     data.drop(columns = "mdfc", inplace = True)
     data.drop(columns = "poison", inplace = True)
+    data.drop(columns = "alternate_win", inplace = True)
     data.drop(columns = "vehicle", inplace = True)
     data.drop(columns = "damage_multiplyers", inplace = True)
     data.insert(loc = 0, column = "processed_text", value = processed_text)
@@ -141,40 +142,23 @@ def classifier(X_train, X_val, labels, Y_train, Y_val):
     recall = recall_score(Y_val, y_predicted, average = None)
     f1 = f1_score(Y_val, y_predicted, average = None)
 
-    print(conf_mat)
-    print(precision)
-    print(recall)
-    print(f1)
+    print(f"Confusion matrix:\n{conf_mat}\n")
+    print(f"Precision:\n{precision}\n")
+    print(f"Recall:\n{recall}\n")
+    print(f"f1:\n{f1}\n")
 
     glob_prec = sum(precision) / len(precision)
     glob_rec = sum(recall) / len(recall)
     mac_f1 = 2 *((glob_rec * glob_prec)/(glob_prec + glob_rec))
 
-    print(glob_prec)
-    print(glob_rec)
-    print(mac_f1)
-    
+    print(f"Global precision: {glob_prec}")
+    print(f"Global recall: {glob_rec}")
+    print(f"Macro f1: {mac_f1}")
 
-
-
-
-    """NB_pipeline = Pipeline([
-                    ("tfidf", TfidfVectorizer()),
-                    ("classifier", OneVsRestClassifier(MultinomialNB(fit_prior = True, class_prior = None)))
-                    
-                    ])
-
-    for label in labels:
-        NB_pipeline.fit(X_train, meta_train[label])
-        prediction = NB_pipeline.predict(X_val)
-        #print(f"Accuracy for {label} is: {accuracy_score(meta_validate[label], prediction)}") #Dataset unablanced so this is kinda useless but cool nonetheless
-        print(f"Precision score: {precision_score(meta_validate[label], prediction)}")
-        print(f"Recall score: {recall_score(meta_validate[label], prediction, average = None, zero_division = np.nan)}")"""
-
-    
     x = 222
 
 if __name__ == "__main__":
-    X_train, X_val, labels, Y_train, Y_val = data_prep_alt()
-    classifier(X_train, X_val, labels, Y_train, Y_val)
+    """X_train, X_val, labels, Y_train, Y_val = data_prep_alt()
+    classifier(X_train, X_val, labels, Y_train, Y_val)"""
+    look_at_data()
     x = 8

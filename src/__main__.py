@@ -2,6 +2,7 @@ import sys
 import math
 import os
 import win32clipboard
+import re
 
 #Potential expansions listed below
 #Deck speed variable to help with below thresholds
@@ -35,6 +36,8 @@ def hypergeo_calculator(total_desired_cards: int, number_in_hand: int, cards_dra
     except ValueError:
         print("Your numbers are not compatible, please re-enter!")
 
+def inc_num(card):
+    return any(i.isdigit() for i in card)
 
 def grab_deck_list():
     """
@@ -45,10 +48,13 @@ def grab_deck_list():
     deck_list = win32clipboard.GetClipboardData()
     deck_list_arr = deck_list.split("\n")
     deck_list_formatted = []
+
     deck_name = deck_list_arr[1]
     deck_name_formatted = deck_name.replace("Name ", "")
-    for i in deck_list_arr[4:]:
-        deck_list_formatted.append(i.replace("\r", ""))
+    
+    for i, card in enumerate(deck_list_arr):
+        if inc_num(card):
+            deck_list_formatted.append(card.strip())
     win32clipboard.CloseClipboard()
     return deck_list_formatted, deck_name_formatted
         
