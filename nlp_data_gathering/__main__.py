@@ -28,7 +28,7 @@ def random_card_grabber(card_count):
 
     return random_cards
 
-def manual_sorting(output_file, deck_list, card_count = None):
+def manual_sorting(output_file, deck_list, card_count = 0):
     """
     This function allows the user to generate random cards and sort them into buckets then writes it to a CSV.
 
@@ -42,54 +42,54 @@ def manual_sorting(output_file, deck_list, card_count = None):
     }
 
     card_buckets_dict = {
-        "flicker": [],
-        "proliferate": [],
-        "extra_step/combat": [],
-        "extra_turn": [],
-        "cast_outside_hand": [],
-        "poison": [], #not needed
-        "draw": [], 
-        "protection": [],
-        "removal": [],
-        "stat_enhancer": [],
-        "keyword_granter": [],
-        "burn": [],
-        "discard": [],
-        "recursion": [],
-        "vehicle": [], #not needed
-        "tokens": [],
-        "mill": [],
-        "counterspell": [],
-        "ramp": [],
-        "mana_reducers": [],
-        "alternate_win": [],
-        "copy_spell": [],
-        "lifegain": [],
-        "tutor": [],
-        "counters": [],
-        "damage_multiplyers": [], #not needed
-        "evasion": [],
-        "stax": [],
-        "lands_matter": [],
-        "graveyard_hate": [],
-        "creature_steal": [],
-        "sacrifice": [],
-        "untap": [],
-        "land_destruction": [],
-        "cheat": [],
-        "flexible": [],
-        "goad": [], 
-        "jank": [],
-        "mdfc": [], #not needed
-        "cycling": [],
-        "tap": [],
-        "face_down": [],
-        "graveyard_matters": [],
-        "modal": [],
-        "waste": [],
-        "library_filter": [],
-        "self_buff": [],
-        "has_keyword": []
+        "flicker": [], #Needed
+        "proliferate": [], #Not needed can use hard rule "Proliferate"
+        "extra_step/combat": [], #Needed
+        "extra_turn": [], #Not needed can use hard rule "extra turn"
+        "cast_outside_hand": [], #Needed
+        "poison": [], #not needed (not useful)
+        "draw": [], #Needed
+        "protection": [], #Needed
+        "removal": [], #Needed
+        "stat_enhancer": [], #Needed
+        "keyword_granter": [], #Needed
+        "burn": [], #Needed
+        "discard": [], #Not needed can use hard rule "discard"
+        "recursion": [], #Needed
+        "vehicle": [], #not needed (not useful)
+        "tokens": [], #Needed
+        "mill": [], #Needed
+        "counterspell": [], #Needed
+        "ramp": [], #Needed
+        "mana_reducers": [], #Needed
+        "alternate_win": [], #Not needed (not useful)
+        "copy_spell": [], #Needed
+        "lifegain": [], #Needed
+        "tutor": [], #Needed
+        "counters": [], #Needed
+        "damage_multiplyers": [], #not needed (too few)
+        "evasion": [], #Needed
+        "stax": [], #Needed
+        "lands_matter": [], #Needed
+        "graveyard_hate": [], #Needed
+        "creature_steal": [], #Not needed, "Gain control of target creature"
+        "sacrifice": [], #Needed
+        "untap": [], #Not needed (dont use often)
+        "land_destruction": [], #Needed
+        "cheat": [], #Not needed (not useful)
+        "flexible": [], #Not needed (not useful)
+        "goad": [], #Can keep
+        "jank": [], #Not needed (not useful)
+        "mdfc": [], #not needed (dosent work)
+        "cycling": [], #Needed
+        "tap": [], #Needed
+        "face_down": [], #Needed
+        "graveyard_matters": [], #Needed
+        "modal": [], #Needed
+        "waste": [], #tag to put when mistakes are made, samples are dropped.
+        "library_filter": [], #Needed
+        "self_buff": [], #Needed
+        "has_keyword": [] #Needed
     }
     if deck_list:
         random_cards = deck_list
@@ -129,7 +129,7 @@ def manual_sorting(output_file, deck_list, card_count = None):
         writer = csv.writer(csv_file, delimiter=",")
         writer.writerow(combined_dict.keys())
         for i in range(card_count):
-            writer.writerow(combined_dict[key][i] for key in keys) # MB resolved on line 95? UnicodeEncodeError: 'charmap' codec can't encode character '\u2212' in position 120: character maps to <undefined> - occasionally throws this error
+            writer.writerow(combined_dict[key][i] for key in keys) 
             
     return output_file
 
@@ -143,7 +143,7 @@ def manual_supplimentation(output_file):
     """
     deck_list, deck_name = grab_deck_list()
     for i in range(len(deck_list)):
-        deck_list[i] = re.sub(r'\d', '', deck_list[i])
+        deck_list[i] = re.sub(r'\d', '', str(deck_list[i]))
         deck_list[i] = deck_list[i].lstrip()
 
     rdy_to_sort = []

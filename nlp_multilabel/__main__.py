@@ -1,26 +1,26 @@
 import pandas as pd
 import json
 import re
-import torch
 import numpy as np
 from sklearn.model_selection import train_test_split
-from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.feature_extraction.text import CountVectorizer
 import nltk.corpus
 import csv
 import matplotlib.pyplot as plt
-from torch.utils.data import TensorDataset, DataLoader
-from sklearn.naive_bayes import MultinomialNB
 from sklearn.metrics import accuracy_score, confusion_matrix
-from sklearn.multiclass import OneVsRestClassifier
-from sklearn.svm import LinearSVC
 from sklearn.linear_model import LogisticRegression
+from sklearn.multiclass import OneVsRestClassifier
+from skmultilearn.adapt import MLkNN
 from sklearn.pipeline import Pipeline
 from sklearn.metrics import precision_score
+from sklearn.metrics import ConfusionMatrixDisplay
 from sklearn.metrics import recall_score
 from sklearn.metrics import roc_auc_score
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import f1_score
+from imblearn.combine import SMOTEENN
+from imblearn.pipeline import Pipeline
+import pickle
 
 
 def retrieve_card_text(): #Works
@@ -77,20 +77,42 @@ def complete_dataset(processed_text: list = None): #Works
     """
     processed_text = processed_text if processed_text else preprocess_text()
     data = pd.read_csv("data/train_validate.csv")
-    data.drop(columns = "oracle_id", inplace = True)
-    data.drop(columns = "oracle_text", inplace = True)
     data.drop(data.loc[data["waste"] == 1].index, inplace = True)
-    data.drop(columns = "waste", inplace = True)
-    data.drop(columns = "mdfc", inplace = True)
-    data.drop(columns = "poison", inplace = True)
-    data.drop(columns = "alternate_win", inplace = True)
-    data.drop(columns = "vehicle", inplace = True)
-    data.drop(columns = "damage_multiplyers", inplace = True)
+    data.drop(columns = ["oracle_id", 
+                         "oracle_text", 
+                         "waste", 
+                         "mdfc", 
+                         "poison", 
+                         "alternate_win", 
+                         "vehicle", 
+                         "damage_multiplyers",   
+                         "cheat", 
+                         "flexible", 
+                         "jank"], inplace = True)
     data.insert(loc = 0, column = "processed_text", value = processed_text)
 
     return data
 
-def data_prep_alt(data: csv = None):
+def data_prep_dummy():
+    """
+    This function generates a dummy dataset to test that the model is working as intended.
+    """
+    data = complete_dataset()
+    df = pd.DataFrame(data)
+    text_data = df["processed_text"].values
+    newdf = df.replace(1,0)
+    label_values = (newdf.loc[:, newdf.columns != "processed_text"].values)
+    labels = newdf.columns
+    labels = labels[1:]
+
+    X_train, X_val, Y_train, Y_val = train_test_split(text_data, label_values, test_size=0.25, random_state=17)
+
+    return X_train, X_val, labels, Y_train, Y_val
+
+    
+    l = 72
+
+def data_prep_main(data: csv = None):
     """ 
     This function prepares the input dataset for NLP training.
 
@@ -109,10 +131,8 @@ def data_prep_alt(data: csv = None):
 
     label_values = (data.loc[:, data.columns != "processed_text"].values)
     text_data = data["processed_text"].values
-    labels = data.columns
-    labels = labels[1:]
-
-    X_train, X_val, Y_train, Y_val = train_test_split(text_data, label_values, test_size=0.25, random_state=17)
+    labels = data.loc[:, data.columns !="preprocessed_text"]
+    X_train, X_val, Y_train, Y_val = train_test_split(text_data, label_values, test_size=0.25, random_state=10)
 
     return X_train, X_val, labels, Y_train, Y_val
 
@@ -126,21 +146,33 @@ def look_at_data():
     plt.tight_layout()
     plt.show()
 
-def classifier(X_train, X_val, labels, Y_train, Y_val):
+def classifier_train(X_train, X_val, Y_train):
 
     vectoriser = CountVectorizer()
     X_train = vectoriser.fit_transform(X_train, Y_train)
     X_val = vectoriser.transform(X_val)
 
-    model = OneVsRestClassifier(MultinomialNB())
+    pipe = Pipeline([("clf", LogisticRegression(class_weight="balanced"))])
+
+    model = OneVsRestClassifier(pipe)
 
     model.fit(X_train, Y_train)
+    with open("nlp_multilabel/model.pkl", "wb") as file:
+        pickle.dump(model, file)
     y_predicted = model.predict(X_val)
 
+    return y_predicted
+
+def classifier_refine(Y_val, y_predicted):
+
     conf_mat = confusion_matrix(Y_val.argmax(axis=1), y_predicted.argmax(axis=1))
+    cm_disp = ConfusionMatrixDisplay(confusion_matrix = conf_mat)
     precision = precision_score(Y_val, y_predicted, average = None)
     recall = recall_score(Y_val, y_predicted, average = None)
     f1 = f1_score(Y_val, y_predicted, average = None)
+
+    cm_disp.plot()
+    plt.show()
 
     print(f"Confusion matrix:\n{conf_mat}\n")
     print(f"Precision:\n{precision}\n")
@@ -155,10 +187,7 @@ def classifier(X_train, X_val, labels, Y_train, Y_val):
     print(f"Global recall: {glob_rec}")
     print(f"Macro f1: {mac_f1}")
 
-    x = 222
-
 if __name__ == "__main__":
-    """X_train, X_val, labels, Y_train, Y_val = data_prep_alt()
-    classifier(X_train, X_val, labels, Y_train, Y_val)"""
-    look_at_data()
-    x = 8
+   X_train, X_val, labels, Y_train, Y_val = data_prep_main()
+   y_predicted = classifier_train(X_train, X_val, Y_train)
+   classifier_refine(Y_val, y_predicted)
