@@ -1,4 +1,8 @@
 from src.__main__ import grab_deck_list
+import json
+from nlp_data_gathering.__main__ import manual_supplimentation
+import re
+from nlp_multilabel.__main__ import preprocess_text
 
 def deck_focus():
     "stores dict for user imput"
@@ -7,8 +11,14 @@ def deck_focus():
     deck_list = grab_deck_list()
     deck_arhcetypes = ["voltron", "stax", "group hug", "creatures", "spellslinger", "lands", "graveyard", "artifacts", "counters", "control", "tokens"]
     legends = input("Does your deck care about legendary cards?\n")
+
 def nlp_prep():
-    deck_list = grab_deck_list()
+    deck_list_formatted = manual_supplimentation()
+    only_card_txt = []
+    for card in deck_list_formatted:
+        only_card_txt.append(card[1])
+    processed_txt = preprocess_text(only_card_txt)
+    return processed_txt
     
 def nlp_tagging():
     "modify decklist so it can be input to nlp model"
@@ -32,4 +42,5 @@ def focus_tag_filtering():
 
 
 if __name__ == "__main__":
-    z = 1
+    x= nlp_prep()
+    print(x)

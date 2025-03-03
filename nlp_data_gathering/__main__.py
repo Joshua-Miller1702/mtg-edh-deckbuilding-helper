@@ -133,13 +133,9 @@ def manual_sorting(output_file, deck_list, card_count = 0):
             
     return output_file
 
-def manual_supplimentation(output_file):
+def manual_supplimentation():
     """
     This function allows for manual supplimentation of cards to even out underepresented parts of the dataset. Invokes manual_sorting to label a decklist.
-
-    Args:
-        output_file - output_file name (.csv)
-        deck_list - not an arg passed in but this function will grab a decklist (or anything) from your clipboard, only in MTGA format.
     """
     deck_list, deck_name = grab_deck_list()
     for i in range(len(deck_list)):
@@ -155,12 +151,13 @@ def manual_supplimentation(output_file):
                 if card["name"] == name:
                     values = [card.get(key) for key in keys]
                     rdy_to_sort.append(values)
-
-    manual_sorting(output_file, deck_list = rdy_to_sort)
+    
+    return rdy_to_sort
 
 if __name__ == "__main__":
     output_file = argv[1]
     """card_count = int(argv[2]) 
     manual_sorting(output_file, card_count)"""
-    manual_supplimentation(output_file)
+    deck_list = manual_supplimentation()
+    manual_sorting(output_file, deck_list)
     
