@@ -21,7 +21,48 @@ def nlp_prep():
     return processed_txt
     
 def nlp_tagging():
-    "modify decklist so it can be input to nlp model"
+    feed_in_text = nlp_prep()
+    tags = [
+        "flicker", 
+        "extra_step/combat", 
+        "extra_turn",
+        "cast_outside_hand", 
+        "draw", 
+        "protection",
+        "removal", 
+        "stat_enhancer", 
+        "keyword_granter", 
+        "burn", 
+        "discard", 
+        "recursion", 
+        "tokens", 
+        "mill", 
+        "counterspell", 
+        "ramp", 
+        "mana_reducers", 
+        "copy_spell", 
+        "lifegain", 
+        "tutor", 
+        "counters", 
+        "evasion", 
+        "stax", 
+        "lands_matter", 
+        "graveyard_hate", 
+        "creature_steal",
+        "sacrifice", 
+        "untap", 
+        "land_destruction",
+        "goad",
+        "cycling", 
+        "tap", 
+        "face_down", 
+        "graveyard_matters", 
+        "modal", 
+        "library_filter", 
+        "self_buff", 
+        "has_keyword"
+        ] 
+    x = 222
     "run decklist through the NLP model to tag it with all those"
 def typeline_tagging():
     "apply tags based on typeline"
@@ -42,5 +83,5 @@ def focus_tag_filtering():
 
 
 if __name__ == "__main__":
-    x= nlp_prep()
+    x= nlp_tagging()
     print(x)
