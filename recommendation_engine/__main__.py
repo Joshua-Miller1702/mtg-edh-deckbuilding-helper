@@ -2,6 +2,8 @@ from src.__main__ import grab_deck_list
 import json
 from nlp_data_gathering.__main__ import manual_supplimentation
 import re
+import pickle
+from sklearn.feature_extraction.text import CountVectorizer
 from nlp_multilabel.__main__ import preprocess_text
 
 def deck_focus():
@@ -62,8 +64,10 @@ def nlp_tagging():
         "self_buff", 
         "has_keyword"
         ] 
-    x = 222
     "run decklist through the NLP model to tag it with all those"
+    model = pickle.load(open("nlp_multilabel/model.pkl", "rb"))
+    predictions = model.predict(feed_in_text)
+    return predictions
 def typeline_tagging():
     "apply tags based on typeline"
 def basic_tagging():
@@ -83,5 +87,5 @@ def focus_tag_filtering():
 
 
 if __name__ == "__main__":
-    x= nlp_tagging()
+    x = nlp_tagging()
     print(x)

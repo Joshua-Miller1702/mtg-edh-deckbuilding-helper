@@ -148,11 +148,9 @@ def look_at_data():
 
 def classifier_train(X_train, X_val, Y_train):
 
-    vectoriser = CountVectorizer()
-    X_train = vectoriser.fit_transform(X_train, Y_train)
-    X_val = vectoriser.transform(X_val)
 
-    pipe = Pipeline([("clf", LogisticRegression(class_weight="balanced"))])
+    pipe = Pipeline([("countvec", CountVectorizer()),
+                    ("clf", LogisticRegression(class_weight="balanced"))])
 
     model = OneVsRestClassifier(pipe)
 
