@@ -141,6 +141,7 @@ def manual_supplimentation():
     for i in range(len(deck_list)):
         deck_list[i] = re.sub(r'\d', '', str(deck_list[i]))
         deck_list[i] = deck_list[i].lstrip()
+    
 
     rdy_to_sort = []
     keys = ["oracle_id", "oracle_text", "name", "cmc", "type_line", "card_face"]
@@ -152,12 +153,12 @@ def manual_supplimentation():
                     values = [card.get(key) for key in keys]
                     rdy_to_sort.append(values)
     
-    return rdy_to_sort
+    return rdy_to_sort , deck_list
 
 if __name__ == "__main__":
     output_file = argv[1]
     """card_count = int(argv[2]) 
     manual_sorting(output_file, card_count)"""
-    deck_list = manual_supplimentation()
-    manual_sorting(output_file, deck_list)
+    deck_list_formatted, deck_list = manual_supplimentation()
+    manual_sorting(output_file, deck_list_formatted)
     
