@@ -1,24 +1,17 @@
 import pandas as pd
-import json
 import re
-import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import CountVectorizer
 import nltk.corpus
 import csv
 import matplotlib.pyplot as plt
-from sklearn.metrics import accuracy_score, confusion_matrix
+from sklearn.metrics import confusion_matrix
 from sklearn.linear_model import LogisticRegression
 from sklearn.multiclass import OneVsRestClassifier
-from skmultilearn.adapt import MLkNN
-from sklearn.pipeline import Pipeline
 from sklearn.metrics import precision_score
 from sklearn.metrics import ConfusionMatrixDisplay
 from sklearn.metrics import recall_score
-from sklearn.metrics import roc_auc_score
-from sklearn.metrics import accuracy_score
 from sklearn.metrics import f1_score
-from imblearn.combine import SMOTEENN
 from imblearn.pipeline import Pipeline
 import pickle
 
@@ -162,6 +155,13 @@ def classifier_train(X_train, X_val, Y_train):
     return y_predicted
 
 def classifier_refine(Y_val, y_predicted):
+    """
+    This function dispays various metrics and graphs to help refine the model.
+
+    Args:
+        Y_val - known label values part of validation set
+        y_predicted - predictions of the above labels based on feature vectors fed in
+    """
 
     conf_mat = confusion_matrix(Y_val.argmax(axis=1), y_predicted.argmax(axis=1))
     cm_disp = ConfusionMatrixDisplay(confusion_matrix = conf_mat)

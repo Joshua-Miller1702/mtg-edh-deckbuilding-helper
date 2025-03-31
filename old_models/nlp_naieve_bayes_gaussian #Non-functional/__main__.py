@@ -1,5 +1,4 @@
 import pandas as pd
-import json
 import re
 import torch
 import numpy as np
@@ -8,7 +7,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 import nltk.corpus
 import itertools
 import csv
-from torch.utils.data import TensorDataset, DataLoader 
+from torch.utils.data import TensorDataset 
 from sklearn.naive_bayes import MultinomialNB
 
 def retrieve_card_text(): #Works

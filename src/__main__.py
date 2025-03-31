@@ -1,8 +1,5 @@
-import sys
 import math
-import os
 import win32clipboard
-import re
 
 #Potential expansions listed below
 #Deck speed variable to help with below thresholds

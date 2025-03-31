@@ -1,10 +1,8 @@
-import requests
 import json
 import csv
 from sys import argv
 import random
 import re
-import pandas as pd
 from src.__main__ import grab_deck_list
 
 def random_card_grabber(card_count):
@@ -12,7 +10,7 @@ def random_card_grabber(card_count):
     This function grabs some number of random cards from the scryfall database / from local data and returns the card's oracle id, oracle text, name, cmc and type line.
 
     Args:
-        repetitions - The number of random cards to grab.
+        card_count - The number of random cards to grab.
     """
     #base_url = "https://api.scryfall.com"
     #random_mod_format = base_url + "/cards/random"
@@ -42,54 +40,54 @@ def manual_sorting(output_file, deck_list, card_count = 0):
     }
 
     card_buckets_dict = {
-        "flicker": [], #Needed
-        "proliferate": [], #Not needed can use hard rule "Proliferate"
-        "extra_step/combat": [], #Needed
-        "extra_turn": [], #Not needed can use hard rule "extra turn"
-        "cast_outside_hand": [], #Needed
-        "poison": [], #not needed (not useful)
-        "draw": [], #Needed
-        "protection": [], #Needed
-        "removal": [], #Needed
-        "stat_enhancer": [], #Needed
-        "keyword_granter": [], #Needed
-        "burn": [], #Needed
-        "discard": [], #Not needed can use hard rule "discard"
-        "recursion": [], #Needed
-        "vehicle": [], #not needed (not useful)
-        "tokens": [], #Needed
-        "mill": [], #Needed
-        "counterspell": [], #Needed
-        "ramp": [], #Needed
-        "mana_reducers": [], #Needed
-        "alternate_win": [], #Not needed (not useful)
-        "copy_spell": [], #Needed
-        "lifegain": [], #Needed
-        "tutor": [], #Needed
-        "counters": [], #Needed
-        "damage_multiplyers": [], #not needed (too few)
-        "evasion": [], #Needed
-        "stax": [], #Needed
-        "lands_matter": [], #Needed
-        "graveyard_hate": [], #Needed
-        "creature_steal": [], #Not needed, "Gain control of target creature"
-        "sacrifice": [], #Needed
-        "untap": [], #Not needed (dont use often)
-        "land_destruction": [], #Needed
-        "cheat": [], #Not needed (not useful)
-        "flexible": [], #Not needed (not useful)
-        "goad": [], #Can keep
-        "jank": [], #Not needed (not useful)
-        "mdfc": [], #not needed (dosent work)
-        "cycling": [], #Needed
-        "tap": [], #Needed
-        "face_down": [], #Needed
-        "graveyard_matters": [], #Needed
-        "modal": [], #Needed
-        "waste": [], #tag to put when mistakes are made, samples are dropped.
-        "library_filter": [], #Needed
-        "self_buff": [], #Needed
-        "has_keyword": [] #Needed
+        "flicker": [], 
+        "proliferate": [], 
+        "extra_step/combat": [], 
+        "extra_turn": [], 
+        "cast_outside_hand": [], 
+        "poison": [],
+        "draw": [], 
+        "protection": [], 
+        "removal": [],
+        "stat_enhancer": [], 
+        "keyword_granter": [], 
+        "burn": [], 
+        "discard": [], 
+        "recursion": [], 
+        "vehicle": [], 
+        "tokens": [], 
+        "mill": [], 
+        "counterspell": [], 
+        "ramp": [], 
+        "mana_reducers": [], 
+        "alternate_win": [], 
+        "copy_spell": [], 
+        "lifegain": [], 
+        "tutor": [],
+        "counters": [],
+        "damage_multiplyers": [], 
+        "evasion": [], 
+        "stax": [], 
+        "lands_matter": [], 
+        "graveyard_hate": [], 
+        "creature_steal": [], 
+        "sacrifice": [], 
+        "untap": [],
+        "land_destruction": [], 
+        "cheat": [], 
+        "flexible": [], 
+        "goad": [], 
+        "jank": [], 
+        "mdfc": [], 
+        "cycling": [], 
+        "tap": [], 
+        "face_down": [], 
+        "graveyard_matters": [], 
+        "modal": [], 
+        "waste": [], 
+        "library_filter": [], 
+        "self_buff": [], 
+        "has_keyword": [] 
     }
     if deck_list:
         random_cards = deck_list

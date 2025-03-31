@@ -1,22 +1,17 @@
 from src.__main__ import grab_deck_list
 import json
 from nlp_data_gathering.__main__ import manual_supplimentation
-import re
 import pickle
-from sklearn.feature_extraction.text import CountVectorizer
 from nlp_multilabel.__main__ import preprocess_text
 
 def deck_focus():
-    original_deck_list = grab_deck_list()
-    deck_list_qantities = []
-    for card in original_deck_list:
-        deck_list_qantities.append(card[:2])
-    for i in range(len(deck_list_qantities)):
-        deck_list_qantities[i] = deck_list_qantities[i].rstrip
+    original_deck_list, name = grab_deck_list()
+    card_quantities = [card[0:2] for card in original_deck_list]
+    
+    """deck_arhcetypes = ["voltron", "stax", "group hug", "creatures", "spellslinger", "lands", "graveyard", "artifacts", "counters", "control", "tokens"]
+    legends = input("Does your deck care about legendary cards?\n")"""
 
-
-    deck_arhcetypes = ["voltron", "stax", "group hug", "creatures", "spellslinger", "lands", "graveyard", "artifacts", "counters", "control", "tokens"]
-    legends = input("Does your deck care about legendary cards?\n")
+    return card_quantities
 
 def nlp_prep():
     deck_list_formatted, deck_list = manual_supplimentation()
@@ -86,11 +81,29 @@ def nlp_tagging():
         model_tagged_deck.append(card + tags_per_card[i])
 
     return model_tagged_deck
+
 def typeline_tagging():
-    "apply tags based on typeline"
-def basic_tagging():
-    "apply tags based on presence or absence of specific words ie populate and proliferate"
+    text, deck_list = nlp_prep()
+
+    type_lines = []
+    with open("data/cards.json", 'r', encoding='utf-8') as cards:
+        cards = json.load(cards)
+        for name in deck_list:
+            x = ""
+            for card in cards:
+                if card["name"] == name:
+                    x = card.get("type_line")
+                    type_lines.append(x)
+    for i in range(len(type_lines)):
+        type_lines[i] = type_lines[i].lower()
+    return type_lines
+
+
 def focus_tag_filtering():
+    type_lines = typeline_tagging()
+    nlp_tags = nlp_tagging()
+    card_quantities = deck_focus()
+    "adds card numbers back to deck"
     "remove irrelevant tags based on info provided in deck focus"
 
 
@@ -105,6 +118,6 @@ def focus_tag_filtering():
 
 
 if __name__ == "__main__":
-    x = nlp_tagging()
-    print(x)
-    i = 69
+    i = deck_focus()
+    print(i)
+    x = 1
