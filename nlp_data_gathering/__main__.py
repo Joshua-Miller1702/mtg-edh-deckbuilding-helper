@@ -97,7 +97,7 @@ def manual_sorting(output_file, deck_list, card_count = 0):
         card_count = card_count
 
     for card in random_cards:
-        if card[1] == None:
+        if card[1] is None:
             card_count -= 1
             continue
         card[1] = card[1].replace(",","")
