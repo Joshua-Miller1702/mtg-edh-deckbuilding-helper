@@ -162,6 +162,8 @@ def desired_tags():
             print("Invalid input try again")
             continue
 
+    final_tags.extend(["draw", "removal", "ramp"])
+
 
     print("Would you like legend tags (y/n)?")
     while True:
@@ -172,8 +174,10 @@ def desired_tags():
             legend_tag_q = legend_tag_q.lower()
             if legend_tag_q == "y":
                 legend_tag_bool = True
+                break
             elif legend_tag_q == "n":
                 legend_tag_bool = False
+                break
             else:
                 raise ValueError
             break
@@ -195,13 +199,13 @@ def focus_tag_filtering():
         for word in nlp_tagged_deck[i].split(" "):
             if word == "":
                 continue
-            if ((word[0] == "#") and (word not in user_tags)):
-                word.replace(word, "")
+            if ((word[0] == "#") and (word[1:] not in user_tags)):
+                nlp_tagged_deck[i] = nlp_tagged_deck[i].replace(word, "")
 
-    # - add legend tags
+    # - add legend tags - NEEDS FIXING
     if legend_tag_bool:
         for i in range(len(legendary)):
-            legendary[i] = "¬" + legendary[i] 
+            legendary[i] = "¬" + legendary[i]
         legend_tagged = [a + b for a, b in zip(nlp_tagged_deck, legendary)]
         legend_tagged = ",¬".join(legend_tagged)
     else:
@@ -210,11 +214,14 @@ def focus_tag_filtering():
     # - add numbers back
     for i in range(len(card_quantities)):
         card_quantities[i] = card_quantities[i] + "¬"
-    final_list = [a + b for a, b in zip(card_quantities, nlp_tagged_deck)]
-    final_list = "¬,".join(final_list)
+    final_list_1 = [a + b for a, b in zip(card_quantities, nlp_tagged_deck)]
+    final_list_1 = "¬,".join(final_list_1)
 
-    for i in range(len(final_list)):
-        final_list[i] = re.sub("¬", "", str(final_list[i]))
+
+    # - reformat
+    final_list = final_list_1.replace("¬", " ")
+    final_list = final_list.replace(" ,", "\n")
+    final_list = re.sub(' +', ' ', final_list).strip()
 
     return final_list
 
