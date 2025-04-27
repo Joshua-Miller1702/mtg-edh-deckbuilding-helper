@@ -80,7 +80,7 @@ def nlp_tagging():
 
     return model_tagged_deck
 
-def legend_tagging():
+def leg_land_tagging():
     text, deck_list = nlp_prep()
 
     type_lines = []
@@ -95,15 +95,20 @@ def legend_tagging():
     for i in range(len(type_lines)):
         type_lines[i] = type_lines[i].lower()
     
+    land = []
+    for line in type_lines:
+        if "land" in line:
+            land.append("#Land")
+        else:
+            land.append("")
+
     legend = []
     for line in type_lines:
         if "legendary" in line:
-            legend.append("Legendary")
+            legend.append("#Legendary")
         else:
             legend.append("")
-    return legend
-
-
+    return legend, land
 
 def desired_tags():
     tags = ["flicker","proliferate","extra_step/combat", "extra_turn","cast_outside_hand", "draw", "protection","removal", "stat_enhancer", "keyword_granter", "burn", "discard", "recursion", "tokens", "mill", "counterspell", "ramp", "mana_reducers", "copy_spell", "lifegain", "tutor", "counters", "evasion", "stax", "lands_matter", "graveyard_hate", "creature_steal","sacrifice", "untap", "land_destruction","goad","cycling", "tap", "face_down", "graveyard_matters", "modal", "library_filter", "self_buff", "has_keyword"]
@@ -190,7 +195,7 @@ def desired_tags():
 
 def focus_tag_filtering():
     user_tags, legend_tag_bool = desired_tags()
-    legendary = legend_tagging()
+    legendary, land = leg_land_tagging()
     nlp_tagged_deck = nlp_tagging()
     card_quantities = deck_quant()
 
@@ -201,42 +206,38 @@ def focus_tag_filtering():
                 continue
             if ((word[0] == "#") and (word[1:] not in user_tags)):
                 nlp_tagged_deck[i] = nlp_tagged_deck[i].replace(word, "")
+    
+    # - land tags
+    for i in range(len(land)):
+        land[i] = "`" + land[i]
+    land_tagged = [a + b for a,b in zip(nlp_tagged_deck, land)]
+    for i in range(len(land_tagged)):
+        if (("#ramp" in land_tagged[i]) and ("#Land" in land_tagged[i])):
+            land_tagged[i] = land_tagged[i].replace("#ramp", "")
 
     # - add legend tags - NEEDS FIXING
     if legend_tag_bool:
         for i in range(len(legendary)):
-            legendary[i] = "¬" + legendary[i]
-        legend_tagged = [a + b for a, b in zip(nlp_tagged_deck, legendary)]
-        legend_tagged = ",¬".join(legend_tagged)
+            legendary[i] = "¬" + legendary[i] + " "
+        legend_tagged = [a + b for a, b in zip(land_tagged, legendary)]
     else:
-        legend_tagged = nlp_tagged_deck
+        legend_tagged = land_tagged
 
     # - add numbers back
     for i in range(len(card_quantities)):
         card_quantities[i] = card_quantities[i] + "¬"
-    final_list_1 = [a + b for a, b in zip(card_quantities, nlp_tagged_deck)]
-    final_list_1 = "¬,".join(final_list_1)
+    final_list_1 = [a + b for a, b in zip(card_quantities, legend_tagged)]
 
 
     # - reformat
-    final_list = final_list_1.replace("¬", " ")
+    final_list = ",".join(final_list_1)
+    final_list = final_list.replace("¬", " ")
     final_list = final_list.replace(" ,", "\n")
+    final_list = final_list.replace("`", " ")
     final_list = re.sub(' +', ' ', final_list).strip()
 
     return final_list
 
-
-
-
-
-
-
-
-
-
-
-
 if __name__ == "__main__":
     i = focus_tag_filtering()
     print(i)
-    x = 2

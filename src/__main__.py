@@ -40,7 +40,7 @@ def grab_deck_list():
     """
     This function will grab the deck list from the users clipboard and return the deck list as an array containing the card quantity and name, also returns the deck name.
     """
-    ###!!!!!!Needs to be widened to support other deck import formats, currently only supports MTGA decklists!!!!!!###
+    ###!!!!!!Needs to be widened to support other deck import formats, currently only supports MTGO decklists!!!!!!###
     win32clipboard.OpenClipboard()
     deck_list = win32clipboard.GetClipboardData()
     deck_list_arr = deck_list.split("\n")
