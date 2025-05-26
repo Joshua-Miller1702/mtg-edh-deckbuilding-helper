@@ -3,7 +3,6 @@ import re
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import CountVectorizer
 import nltk.corpus
-import csv
 import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix
 from sklearn.linear_model import LogisticRegression
@@ -29,7 +28,7 @@ def retrieve_card_text(): #Works
 
     return cards_text
     
-def preprocess_text(cards_text: list = None): #Works
+def preprocess_text(cards_text): #Works
     """
     This function preprocesses the card text in perpartion for NLP training.
 
@@ -59,7 +58,7 @@ def preprocess_text(cards_text: list = None): #Works
 
     return processed_text
 
-def complete_dataset(processed_text: list = None): #Works
+def complete_dataset(processed_text): #Works
     """
     This function combines the processed text with the csv data containing the labels.
     
@@ -102,10 +101,7 @@ def data_prep_dummy():
 
     return X_train, X_val, labels, Y_train, Y_val
 
-    
-    l = 72
-
-def data_prep_main(data: csv = None):
+def data_prep_main(data):
     """ 
     This function prepares the input dataset for NLP training.
 
